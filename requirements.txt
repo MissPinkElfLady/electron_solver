@@ -1,0 +1,7 @@
+# Python packages (install zeroheliumkit and quantum_electron from their git repos, see README)
+numpy
+scipy
+matplotlib
+pyyaml
+psutil
+gmsh>=4.15

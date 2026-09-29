@@ -1,0 +1,6 @@
+# FEM scratch (meshes, FreeFEM scripts, raw results) - regenerate with device_fem.py
+dump/
+__pycache__/
+*.pyc
+.venv/
+external/
