@@ -82,6 +82,38 @@ This is a grand-canonical, zero-temperature calculation.
 3. It reports the transition voltages and addition voltages, and plots N(ΔV), the addition
    energies μ(N) against μ_res, the radial potential profile, and the ground-state configurations.
 
+## Results: 175 nm hole (`results/`)
+
+FEM results:
+
+- Plunger coupling at the electron position (hole centre): α_plunger = 0.0039, so the well is
+  3.9 meV deep per volt of ΔV.
+- The well is about 70 nm HWHM, set by the hole.
+- The image energy is −4.7 meV at the hole centre and −7.3 meV over the metal. Without the plunger
+  that is an anti-confining bump of about 2.7 meV.
+
+Transitions with μ_res set by a dilute reservoir on the film over the top plate:
+
+| transition | ΔV with images (V) | ΔV without images (V) |
+|---|---|---|
+| 0 → 1 | 0.75 ± 0.25 | 0 |
+| 1 → 2 | 4.24 | 7.36 |
+| 2 → 3 | 7.40 | 14.99 |
+| 3 → 4 | 12.96 | — |
+| 4 → 5 | 19.34 | — |
+
+- **Images more than halve the addition voltages.** The image charges in the top plate screen the
+  electron–electron repulsion. That is exactly what the bare-Coulomb model in quantum_electron
+  misses.
+- **The first electron needs a finite plunger voltage.** Its well has to overcome the image
+  attraction toward the metal before it binds.
+- **Rim ring trap.** At low ΔV the images plus the plunger's fringe field produce a very shallow
+  ring minimum (~0.2 meV) just outside the rim. By default it is not counted as the dot
+  (`--r-bound`).
+- **Unconfirmed irregularity.** The 2→3 addition voltage (3.2 V) is slightly smaller than the 1→2
+  one (3.5 V). This is probably because electrons near the rim are screened more strongly, but it
+  hasn't been checked on a finer voltage grid.
+
 ## Notes on ZeroHeliumKit (as of v0.5.5)
 
 Found while building this:
