@@ -156,8 +156,10 @@ def main():
     ap.add_argument("--dv-points", type=int, default=41)
     ap.add_argument("--n-max", type=int, default=5)
     ap.add_argument("--trials", type=int, default=4, help="random initial conditions per (N, V)")
-    ap.add_argument("--r-bound", type=float, default=0.03,
-                    help="an electron counts as in the dot if it is within hole radius + this margin, um")
+    ap.add_argument("--r-bound", type=float, default=0.0,
+                    help="an electron counts as in the dot if it is within hole radius + this margin, um. "
+                         "Keep it small: at low plunger voltage images + fringe field make a shallow ring "
+                         "trap just outside the rim (~120 nm for a 175 nm hole) that is not the dot")
     ap.add_argument("--no-images", action="store_true", help="ignore image charges (bare Coulomb only)")
     ap.add_argument("--reservoir-density", type=float, default=0.0, help="reservoir sheet density, cm^-2")
     ap.add_argument("--mu-offset", type=float, default=0.0, help="extra reservoir electrochemical potential, eV")
