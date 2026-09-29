@@ -131,16 +131,20 @@ def ground_state(fem: dict, images, dV: float, n: int, r_bound: float, n_trials:
     model = DotModel(potential_dict, {"plunger": dV, "top": 0.0}, images=images,
                      potential_smoothing=0.0, trap_annealing_steps=[0.1] * 3,
                      max_x_displacement=5e-9, max_y_displacement=5e-9)
-    best = None
+    best, best_any = None, None
     for ic in initial_conditions(n, n_trials, rng, previous):
         with warnings.catch_warnings():
             warnings.simplefilter("ignore")
             res = model.get_electron_positions(n_electrons=n, electron_initial_positions=ic, suppress_warnings=True)
-        if best is None or res["fun"] < best["fun"]:
-            best = res
-    x, y = r2xy(best["x"])
-    if np.max(np.hypot(x, y)) > r_bound * 1e-6:
-        return np.inf, best["x"]
+        x, y = r2xy(res["x"])
+        # only configurations with every electron inside the dot count; an escaped electron sits over
+        # the top plate (i.e. in the reservoir), and beyond the image table the energy is meaningless
+        if np.max(np.hypot(x, y)) <= r_bound * 1e-6:
+            if best is None or res["fun"] < best["fun"]:
+                best = res
+        best_any = best_any or res
+    if best is None:
+        return np.inf, best_any["x"]
     return best["fun"], best["x"]
 
 
@@ -152,6 +156,8 @@ def main():
     ap.add_argument("--dv-points", type=int, default=41)
     ap.add_argument("--n-max", type=int, default=5)
     ap.add_argument("--trials", type=int, default=4, help="random initial conditions per (N, V)")
+    ap.add_argument("--r-bound", type=float, default=0.03,
+                    help="an electron counts as in the dot if it is within hole radius + this margin, um")
     ap.add_argument("--no-images", action="store_true", help="ignore image charges (bare Coulomb only)")
     ap.add_argument("--reservoir-density", type=float, default=0.0, help="reservoir sheet density, cm^-2")
     ap.add_argument("--mu-offset", type=float, default=0.0, help="extra reservoir electrochemical potential, eV")
@@ -161,7 +167,9 @@ def main():
     fem = dict(np.load(args.fem, allow_pickle=True))
     meta = fem["meta"].item()
     images = None if args.no_images or "img_g" not in fem else ImageInteraction(fem)
-    r_bound = images.rmax - 0.02 if images else 0.6 * meta["hole_diameter"] + 0.1
+    r_bound = meta["hole_diameter"] / 2 + args.r_bound
+    if images is not None and r_bound > images.rmax - 0.02:
+        raise ValueError("dot radius extends beyond the image-charge table; rerun device_fem.py with a larger --image-rmax")
 
     # reservoir electrochemical potential (relative to -e V_top)
     h = meta["film"] + meta["electron_height"]  # um, electron height above the top plate
